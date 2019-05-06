@@ -1,5 +1,4 @@
 #This file is part galatea blueprint for Flask.
-#The COPYRIGHT file at the top level of this repository contains 
+#The COPYRIGHT file at the top level of this repository contains
 #the full copyright notices and license terms.
-from galatea_file import *
-
+from .galatea_file import *
