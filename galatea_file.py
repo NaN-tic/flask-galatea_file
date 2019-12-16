@@ -11,7 +11,16 @@ Attachment = tryton.pool.get('ir.attachment')
 StaticFile = tryton.pool.get('galatea.static.file')
 
 RESOURCE = current_app.config.get('TRYTON_ATTACHMENT_RESOURCE')
+TTL = current_app.config.get('STATIC_FILE_TTL')
 
+@galatea_file.after_request
+def add_header(response):
+    if 'Cache-Control' not in response.headers:
+        if TTL:
+            response.headers['Cache-Control'] = 'public, max-age='+ str(TTL)
+        else:
+            response.headers['Cache-Control'] = 'public, max-age=300'
+    return response
 
 @galatea_file.route('/file/<path:file_uri>', endpoint="file")
 @tryton.transaction()
