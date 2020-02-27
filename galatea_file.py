@@ -42,7 +42,6 @@ def filename(file_uri):
 
     attachments = Attachment.search([
         ('name', '=', filename),
-        ('allow_galatea', '=', True),
         ], limit=1)
     if not attachments:
         abort(404)
