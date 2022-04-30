@@ -3,7 +3,9 @@
 # the full copyright notices and license terms.
 from flask import Blueprint, Response, abort, current_app, redirect
 from galatea.tryton import tryton
-from mimetypes import guess_type
+import mimetypes
+
+mimetypes.add_type('image/webp', '.webp')
 
 galatea_file = Blueprint('galatea_file', __name__, template_folder='templates')
 
@@ -46,7 +48,7 @@ def filename(file_uri):
         if static_files[0].type == 'remote':
             return redirect(static_files[0].remote_path)
 
-        file_mime = guess_type(filename)[0]
+        file_mime = mimetypes.guess_type(filename, strict=False)[0]
         return Response(static_files[0].file_binary, mimetype=file_mime)
 
     attachments = Attachment.search([
@@ -65,5 +67,5 @@ def filename(file_uri):
             abort(404)
         return redirect(attachment.link)
 
-    file_mime = guess_type(filename)[0]
+    file_mime = mimetypes.guess_type(filename, strict=False)[0]
     return Response(attachment.data, mimetype=file_mime)
