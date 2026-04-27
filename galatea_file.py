@@ -2,18 +2,21 @@
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
 from flask import Blueprint, Response, abort, current_app, redirect
-from app_extensions import tryton
-
+from galatea.tryton import tryton
 import mimetypes
 
 mimetypes.add_type('image/webp', '.webp')
 
 galatea_file = Blueprint('galatea_file', __name__, template_folder='templates')
 
+Attachment = tryton.pool.get('ir.attachment')
+StaticFile = tryton.pool.get('galatea.static.file')
+
+RESOURCE = current_app.config.get('TRYTON_ATTACHMENT_RESOURCE')
+TTL = current_app.config.get('STATIC_FILE_TTL')
+
 @galatea_file.after_request
 def add_header(response):
-    TTL = current_app.config.get('STATIC_FILE_TTL')
-
     if 'Cache-Control' not in response.headers:
         if TTL:
             response.headers['Cache-Control'] = 'public, max-age='+ str(TTL)
@@ -24,11 +27,6 @@ def add_header(response):
 @galatea_file.route('/file/<path:file_uri>', endpoint="file")
 @tryton.transaction()
 def filename(file_uri):
-    Attachment = tryton.pool.get('ir.attachment')
-    StaticFile = tryton.pool.get('galatea.static.file')
-
-    RESOURCE = current_app.config.get('TRYTON_ATTACHMENT_RESOURCE')
-
     file_uri = file_uri.split('/')
     if len(file_uri) not in (1, 2):
         abort(404)
